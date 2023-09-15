@@ -1,26 +1,60 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+import AddTodo from "./components/Addtodo/AddTodo.tsx";
+import TodoList from "./components/Todolist/TodoList.tsx";
+import EditTodo from "./components/Edit/EditTodo.tsx";
 
-function App() {
+interface ITodo {
+  task: string;
+  status: boolean;
+  id: number;
+}
+
+const App = () => {
+  const [todos, setTodos] = useState<ITodo[]>([]);
+  const [editedObj, setEditedObj] = useState<ITodo | null | any>(null); // Updated type here
+
+  function handleTask(newObj: ITodo) {
+    let newTodos = [...todos];
+    newTodos.push(newObj);
+    setTodos(newTodos);
+  }
+
+  function deleteTask(id: number) {
+    let delTodos = todos.filter((task) => task.id !== id);
+    setTodos(delTodos);
+  }
+
+  function getEditedObj(id: number) {
+    let oneObj = todos.find((item) => item.id === id);
+    setEditedObj(oneObj);
+  }
+
+  function saveChanges(newObj: ITodo | null) {
+    let newTodos = [...todos];
+    newTodos = newTodos.map((item) => {
+      if (item.id === newObj!.id) {
+        return newObj!;
+      } else {
+        return item;
+      }
+    });
+    setTodos(newTodos);
+    setEditedObj(null);
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <AddTodo handleTask={handleTask} />
+      <TodoList
+        deleteTask={deleteTask}
+        todos={todos}
+        getEditedObj={getEditedObj}
+      />
+      {editedObj ? (
+        <EditTodo editedObj={editedObj} saveChanges={saveChanges} />
+      ) : null}
     </div>
   );
-}
+};
 
 export default App;
